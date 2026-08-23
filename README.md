@@ -1,1 +1,468 @@
 # AI-Health-Aware-Chatbot
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>HealthAware AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&family=Noto+Sans+Tamil:wght@400;600&family=Noto+Sans+Telugu:wght@400;600&family=Noto+Sans+Malayalam:wght@400;600&family=Noto+Sans+Kannada:wght@400;600&family=Noto+Sans+Devanagari:wght@400;600&display=swap"
+  rel="stylesheet"
+/>
+<style>
+:root {
+  --bg: #faf8f3;
+  --bg-soft: #f1ede2;
+  --ink: #17263b;
+  --ink-soft: #4a5872;
+  --marigold: #e2963b;
+  --marigold-dark: #c97a22;
+  --teal: #2c7a6b;
+  --teal-soft: #e4efec;
+  --coral: #d65a4a;
+  --line: #ddd6c4;
+  --card: #ffffff;
+  --font-display: "Sora", "Noto Sans", sans-serif;
+  --font-body: "Inter", "Noto Sans Tamil", "Noto Sans Telugu", "Noto Sans Malayalam",
+    "Noto Sans Kannada", "Noto Sans Devanagari", sans-serif;
+  --radius-s: 8px;
+  --radius-m: 14px;
+  --radius-l: 22px;
+  --shadow-card: 0 1px 2px rgba(23,38,59,0.06), 0 10px 30px -12px rgba(23,38,59,0.18);
+  --max-width: 880px;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; min-height: 100vh; background: var(--bg); color: var(--ink);
+  font-family: var(--font-body); line-height: 1.5; -webkit-font-smoothing: antialiased;
+}
+button { font-family: inherit; }
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+}
+.app-header { border-bottom: 1px solid var(--line); background: var(--bg); position: sticky; top: 0; z-index: 5; }
+.app-header__inner {
+  max-width: var(--max-width); margin: 0 auto; padding: 16px 20px;
+  display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+}
+.brand { display: flex; align-items: center; gap: 10px; }
+.brand__mark {
+  width: 36px; height: 36px; border-radius: 10px; background: var(--ink);
+  display: grid; place-items: center; flex-shrink: 0;
+}
+.brand__text h1 { font-family: var(--font-display); font-size: 1.1rem; font-weight: 700; margin: 0; letter-spacing: -0.01em; }
+.brand__text p { margin: 0; font-size: 0.76rem; color: var(--ink-soft); }
+.header-controls { display: flex; align-items: center; gap: 10px; }
+.lang-select {
+  appearance: none; border: 1px solid var(--line); background: var(--card) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%2317263b' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 12px center;
+  border-radius: 999px; padding: 8px 30px 8px 14px; font-size: 0.83rem; font-weight: 600; color: var(--ink); cursor: pointer;
+}
+.tab-btn {
+  text-decoration: none; font-size: 0.83rem; font-weight: 600; color: var(--ink);
+  border: 1px solid var(--line); background: var(--card); border-radius: 999px; padding: 8px 14px;
+  white-space: nowrap; cursor: pointer; transition: background .15s ease, border-color .15s ease;
+}
+.tab-btn:hover { background: var(--bg-soft); border-color: var(--ink); }
+.tab-btn.is-active { background: var(--ink); color: #fdfbf6; border-color: var(--ink); }
+.view { display: none; }
+.view.is-active { display: block; }
+.garland-wrap { max-width: var(--max-width); margin: 0 auto; padding: 20px 20px 4px; }
+.garland-label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-soft); margin: 0 0 10px 2px; }
+.garland { position: relative; display: flex; gap: 14px; overflow-x: auto; padding: 10px 2px 14px; }
+.garland::before {
+  content: ""; position: absolute; left: 2px; right: 2px; top: 24px; height: 2px;
+  background-image: linear-gradient(to right, var(--marigold) 0 6px, transparent 6px 12px);
+  background-size: 12px 2px; background-repeat: repeat-x; opacity: .55; z-index: 0;
+}
+.chip { position: relative; z-index: 1; flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; gap: 8px; background: none; border: none; cursor: pointer; width: 84px; padding: 0; }
+.chip__dot { width: 46px; height: 46px; border-radius: 50%; background: var(--card); border: 2px solid var(--line); display: grid; place-items: center; font-size: 1.2rem; transition: border-color .15s ease, transform .15s ease, background .15s ease; }
+.chip__label { font-size: 0.72rem; font-weight: 600; text-align: center; color: var(--ink-soft); line-height: 1.2; }
+.chip:hover .chip__dot { border-color: var(--marigold); transform: translateY(-2px); }
+.chip.is-active .chip__dot { background: var(--marigold); border-color: var(--marigold); }
+.chip.is-active .chip__label { color: var(--ink); }
+.chat-wrap { max-width: var(--max-width); margin: 0 auto; padding: 12px 20px 28px; }
+.chat-card { background: var(--card); border-radius: var(--radius-l); box-shadow: var(--shadow-card); border: 1px solid var(--line); overflow: hidden; display: flex; flex-direction: column; height: min(600px, 68vh); }
+.disclaimer { display: flex; gap: 10px; align-items: flex-start; padding: 12px 18px; background: var(--teal-soft); border-bottom: 1px solid var(--line); font-size: 0.78rem; color: var(--ink); }
+.messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 14px; }
+.msg { max-width: 78%; padding: 11px 15px; border-radius: var(--radius-m); font-size: 0.9rem; white-space: pre-wrap; word-wrap: break-word; animation: rise .18s ease; }
+@keyframes rise { from { opacity: 0; transform: translateY(4px);} to { opacity: 1; transform: translateY(0);} }
+.msg--bot { align-self: flex-start; background: var(--teal-soft); border-bottom-left-radius: 4px; }
+.msg--user { align-self: flex-end; background: var(--ink); color: #fdfbf6; border-bottom-right-radius: 4px; }
+.msg--typing { align-self: flex-start; display: flex; gap: 4px; align-items: center; padding: 13px 16px; }
+.msg--typing span { width: 6px; height: 6px; border-radius: 50%; background: var(--teal); opacity: .5; animation: bounce 1s infinite ease-in-out; }
+.msg--typing span:nth-child(2) { animation-delay: .15s; }
+.msg--typing span:nth-child(3) { animation-delay: .3s; }
+@keyframes bounce { 0%,60%,100% { transform: translateY(0); opacity:.4;} 30% { transform: translateY(-4px); opacity:1;} }
+.msg--error { align-self: flex-start; background: #fbeae7; color: var(--coral); border: 1px solid #f2c9c2; }
+.composer { display: flex; gap: 10px; align-items: flex-end; padding: 14px 16px; border-top: 1px solid var(--line); background: var(--card); }
+.composer textarea { flex: 1; resize: none; border: 1px solid var(--line); border-radius: var(--radius-m); padding: 11px 14px; font-family: var(--font-body); font-size: 0.9rem; color: var(--ink); max-height: 120px; min-height: 44px; }
+.composer textarea:focus { outline: none; border-color: var(--teal); box-shadow: 0 0 0 3px rgba(44,122,107,0.15); }
+.send-btn { flex-shrink: 0; width: 44px; height: 44px; border-radius: 50%; border: none; background: var(--marigold); color: #fff; display: grid; place-items: center; cursor: pointer; transition: background .15s ease, transform .1s ease; }
+.send-btn:hover { background: var(--marigold-dark); }
+.send-btn:disabled { background: var(--line); cursor: not-allowed; }
+.app-footer { max-width: var(--max-width); margin: 0 auto; padding: 0 20px 32px; font-size: 0.74rem; color: var(--ink-soft); text-align: center; }
+.dash-wrap { max-width: var(--max-width); margin: 0 auto; padding: 24px 20px 48px; }
+.dash-head h2 { font-family: var(--font-display); font-size: 1.3rem; margin: 0 0 4px; }
+.dash-head p { margin: 0 0 20px; color: var(--ink-soft); font-size: 0.85rem; }
+.stat-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; margin-bottom: 20px; }
+.stat-card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius-m); padding: 16px; }
+.stat-card__label { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-soft); margin-bottom: 8px; }
+.stat-card__value { font-family: var(--font-display); font-size: 1.6rem; font-weight: 700; }
+.stat-card__sub { font-size: 0.76rem; color: var(--ink-soft); margin-top: 4px; }
+.panel-grid { display: grid; grid-template-columns: 1.3fr 1fr; gap: 16px; margin-bottom: 16px; }
+.panel { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius-m); padding: 18px; }
+.panel h3 { font-family: var(--font-display); font-size: 0.92rem; margin: 0 0 14px; }
+.bar-row { display: grid; grid-template-columns: 110px 1fr 30px; align-items: center; gap: 10px; margin-bottom: 11px; font-size: 0.8rem; }
+.bar-row__label { color: var(--ink-soft); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bar-row__track { height: 9px; border-radius: 999px; background: var(--bg-soft); overflow: hidden; }
+.bar-row__fill { height: 100%; border-radius: 999px; background: var(--teal); transition: width .4s ease; }
+.bar-row.is-lang .bar-row__fill { background: var(--marigold); }
+.bar-row__count { text-align: right; font-weight: 700; }
+.empty-note { font-size: 0.83rem; color: var(--ink-soft); }
+.privacy-note { display: flex; gap: 8px; align-items: flex-start; font-size: 0.76rem; color: var(--ink-soft); background: var(--bg-soft); border-radius: var(--radius-s); padding: 12px 14px; }
+@media (max-width: 560px) {
+  .chat-card { height: min(540px, 74vh); border-radius: var(--radius-m); }
+  .msg { max-width: 88%; }
+  .brand__text p { display: none; }
+  .stat-grid, .panel-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="app-header__inner">
+    <div class="brand">
+      <div class="brand__mark">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 21s-7.5-4.6-10-9.3C.4 8.1 2.1 4.5 5.6 3.7c2-.5 4 .3 5.2 2 .3-.5.7-.9 1.2-1.3C15.8.9 19.7 2.6 21 5.9c1.8 4.6-4 12.8-9 15.1z" stroke="#faf8f3" stroke-width="1.6" stroke-linejoin="round"/>
+          <path d="M4 12h3.2l1.6-3 2.2 6 1.6-3H20" stroke="#e2963b" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="brand__text">
+        <h1>HealthAware AI</h1>
+        <p>Public health awareness assistant</p>
+      </div>
+    </div>
+    <div class="header-controls">
+      <select id="languageSelect" class="lang-select" aria-label="Choose reply language">
+        <option value="English" selected>English</option>
+        <option value="Tamil">Tamil</option>
+        <option value="Telugu">Telugu</option>
+        <option value="Malayalam">Malayalam</option>
+        <option value="Kannada">Kannada</option>
+        <option value="Hindi">Hindi</option>
+      </select>
+      <button class="tab-btn is-active" id="chatTabBtn">Chat</button>
+      <button class="tab-btn" id="dashTabBtn">Dashboard</button>
+    </div>
+  </div>
+</header>
+
+<section id="chatView" class="view is-active">
+  <section class="garland-wrap">
+    <p class="garland-label">Quick topics</p>
+    <div class="garland" id="topicGarland"></div>
+  </section>
+
+  <main class="chat-wrap">
+    <div class="chat-card">
+      <div class="disclaimer">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;margin-top:2px">
+          <circle cx="12" cy="12" r="9" stroke="#2c7a6b" stroke-width="1.6"/>
+          <path d="M12 8v5" stroke="#2c7a6b" stroke-width="1.6" stroke-linecap="round"/>
+          <circle cx="12" cy="16" r="1" fill="#2c7a6b"/>
+        </svg>
+        <span><strong>Educational information only.</strong> This chatbot does not diagnose conditions or prescribe medicine. For personal symptoms or emergencies, please contact a qualified healthcare professional.</span>
+      </div>
+      <div class="messages" id="messages" aria-live="polite">
+        <div class="msg msg--bot">Hi! I'm HealthAware AI 👋 Ask me about dengue prevention, mosquito safety, hand hygiene, healthy food, vaccination, diabetes, blood pressure, or mental well-being — or tap a topic above.</div>
+      </div>
+      <form class="composer" id="composerForm">
+        <textarea id="messageInput" placeholder="Ask a public health question…" rows="1" maxlength="1000" aria-label="Type your health question"></textarea>
+        <button type="submit" class="send-btn" id="sendBtn" aria-label="Send message">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 12l16-8-6 8 6 8-16-8z" fill="#fff"/></svg>
+        </button>
+      </form>
+    </div>
+  </main>
+
+  <footer class="app-footer">We don't store any personal information. Only anonymous, aggregate usage counts (topic and language) power the dashboard.</footer>
+</section>
+
+<section id="dashView" class="view">
+  <main class="dash-wrap">
+    <div class="dash-head">
+      <h2>Community awareness snapshot</h2>
+      <p>Aggregate counts only — no names, messages, or identifying details are ever stored.</p>
+    </div>
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="stat-card__label">Total questions</div>
+        <div class="stat-card__value" id="statTotal">0</div>
+        <div class="stat-card__sub">this session</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card__label">Most asked topic</div>
+        <div class="stat-card__value" id="statTopTopic">—</div>
+        <div class="stat-card__sub" id="statTopTopicSub">&nbsp;</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card__label">Most used language</div>
+        <div class="stat-card__value" id="statTopLang">—</div>
+        <div class="stat-card__sub" id="statTopLangSub">&nbsp;</div>
+      </div>
+    </div>
+    <div class="panel-grid">
+      <div class="panel">
+        <h3>Popular topics</h3>
+        <div id="topicBars"><p class="empty-note">No questions yet — be the first to ask one!</p></div>
+      </div>
+      <div class="panel">
+        <h3>Language usage</h3>
+        <div id="langBars"><p class="empty-note">No data yet.</p></div>
+      </div>
+    </div>
+    <div class="privacy-note">
+      <span>🔒</span>
+      <span>Privacy by design: only a topic category and a language are recorded per question — never the message text or any identifying details.</span>
+    </div>
+  </main>
+</section>
+
+<script>
+const TOPICS = {
+  dengue: { label: "Dengue Prevention", icon: "🦟", prompt: "What can I do to prevent dengue in my home and neighbourhood?" },
+  mosquito: { label: "Mosquito Safety", icon: "🛡️", prompt: "How can I protect my family from mosquito bites?" },
+  hygiene: { label: "Hand Hygiene", icon: "🧼", prompt: "What is the correct way to wash my hands to avoid germs?" },
+  nutrition: { label: "Healthy Food", icon: "🥗", prompt: "What does a healthy, balanced daily diet look like?" },
+  vaccination: { label: "Vaccination", icon: "💉", prompt: "Why is vaccination important and how do vaccines work?" },
+  diabetes: { label: "Diabetes", icon: "🩸", prompt: "What are general lifestyle tips to help manage diabetes risk?" },
+  bp: { label: "Blood Pressure", icon: "❤️", prompt: "What lifestyle habits help keep blood pressure in a healthy range?" },
+  mental: { label: "Mental Well-being", icon: "🧠", prompt: "What are some simple ways to support my mental well-being?" }
+};
+
+const TOPIC_KEYWORDS = {
+  dengue: ["dengue","aedes","platelet"],
+  mosquito: ["mosquito","stagnant water","repellent","malaria"],
+  hygiene: ["hand wash","handwashing","hygiene","sanitizer","germs"],
+  nutrition: ["diet","nutrition","healthy food","balanced meal","vitamin"],
+  vaccination: ["vaccine","vaccination","immunization","booster"],
+  diabetes: ["diabetes","blood sugar","insulin","glucose"],
+  bp: ["blood pressure","hypertension","systolic"],
+  mental: ["stress","anxiety","mental health","sleep","depression","well-being","wellbeing"]
+};
+
+const SYSTEM_PROMPT = `You are HealthAware AI, a friendly public health awareness assistant.
+
+Your ONLY job is general health education for the public on these topics:
+Dengue Prevention, Mosquito Safety, Hand Hygiene, Healthy Food, Vaccination,
+Diabetes, Blood Pressure, and Mental Well-being.
+
+Strict rules you must always follow:
+1. Educational information only. NEVER diagnose a condition, NEVER interpret personal symptoms or test results, and NEVER recommend or name specific medicines, dosages, or treatments.
+2. If someone describes personal symptoms, an emergency, or asks for a diagnosis/prescription, gently decline that specific part and encourage them to consult a qualified doctor or local health worker — then still offer general, safe educational information on the related topic.
+3. Keep answers short, simple, and easy to understand for a general audience. Avoid medical jargon.
+4. Stay on public-health topics. For unrelated questions, briefly say this assistant focuses on public health awareness and steer back.
+5. Respond in the language requested for this conversation, using that language's own script.`;
+
+let stats = { total: 0, topics: {}, languages: {} };
+let pendingTopic = null;
+
+function escapeHtml(str) {
+  const div = document.createElement("div");
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+function detectTopic(text) {
+  const t = text.toLowerCase();
+  for (const [id, kws] of Object.entries(TOPIC_KEYWORDS)) {
+    if (kws.some(k => t.includes(k))) return id;
+  }
+  return "general";
+}
+
+async function loadStats() {
+  try {
+    const res = await window.storage.get("healthaware-stats");
+    if (res && res.value) stats = JSON.parse(res.value);
+  } catch (e) { /* no saved stats yet */ }
+  renderDashboard();
+}
+
+async function saveStats() {
+  try { await window.storage.set("healthaware-stats", JSON.stringify(stats)); }
+  catch (e) { console.error("Could not save stats", e); }
+}
+
+function logInteraction(topic, language) {
+  stats.total += 1;
+  stats.topics[topic] = (stats.topics[topic] || 0) + 1;
+  stats.languages[language] = (stats.languages[language] || 0) + 1;
+  saveStats();
+  renderDashboard();
+}
+
+function renderBars(container, dataObj, labelFn, isLang) {
+  const entries = Object.entries(dataObj).sort((a,b) => b[1]-a[1]);
+  if (!entries.length) {
+    container.innerHTML = '<p class="empty-note">No data yet.</p>';
+    return;
+  }
+  const max = Math.max(...entries.map(e => e[1]));
+  container.innerHTML = entries.map(([key, count]) => {
+    const pct = Math.round((count/max)*100);
+    return `<div class="bar-row ${isLang ? "is-lang" : ""}">
+      <div class="bar-row__label">${escapeHtml(labelFn(key))}</div>
+      <div class="bar-row__track"><div class="bar-row__fill" style="width:${pct}%"></div></div>
+      <div class="bar-row__count">${count}</div>
+    </div>`;
+  }).join("");
+}
+
+function renderDashboard() {
+  document.getElementById("statTotal").textContent = stats.total;
+
+  const topTopics = Object.entries(stats.topics).sort((a,b)=>b[1]-a[1]);
+  const topLangs = Object.entries(stats.languages).sort((a,b)=>b[1]-a[1]);
+
+  document.getElementById("statTopTopic").textContent = topTopics.length ? (TOPICS[topTopics[0][0]]?.label || "General") : "—";
+  document.getElementById("statTopTopicSub").textContent = topTopics.length ? topTopics[0][1] + " questions" : "";
+
+  document.getElementById("statTopLang").textContent = topLangs.length ? topLangs[0][0] : "—";
+  document.getElementById("statTopLangSub").textContent = topLangs.length ? topLangs[0][1] + " questions" : "";
+
+  renderBars(document.getElementById("topicBars"), stats.topics, k => TOPICS[k]?.label || "General", false);
+  renderBars(document.getElementById("langBars"), stats.languages, k => k, true);
+}
+
+// --- Topic garland ---
+const garland = document.getElementById("topicGarland");
+garland.innerHTML = Object.entries(TOPICS).map(([id, t]) =>
+  `<button class="chip" type="button" data-topic="${id}">
+    <span class="chip__dot" aria-hidden="true">${t.icon}</span>
+    <span class="chip__label">${t.label}</span>
+  </button>`
+).join("");
+
+garland.addEventListener("click", (e) => {
+  const chip = e.target.closest(".chip");
+  if (!chip) return;
+  garland.querySelectorAll(".chip").forEach(c => c.classList.remove("is-active"));
+  chip.classList.add("is-active");
+  const topic = chip.dataset.topic;
+  pendingTopic = topic;
+  sendMessage(TOPICS[topic].prompt, topic);
+});
+
+// --- Chat ---
+const form = document.getElementById("composerForm");
+const input = document.getElementById("messageInput");
+const sendBtn = document.getElementById("sendBtn");
+const messages = document.getElementById("messages");
+const languageSelect = document.getElementById("languageSelect");
+
+function autoGrow() {
+  input.style.height = "auto";
+  input.style.height = Math.min(input.scrollHeight, 120) + "px";
+}
+input.addEventListener("input", autoGrow);
+
+function addMessage(text, role) {
+  const bubble = document.createElement("div");
+  bubble.className = "msg msg--" + role;
+  bubble.innerHTML = escapeHtml(text).replace(/\n/g, "<br>");
+  messages.appendChild(bubble);
+  messages.scrollTop = messages.scrollHeight;
+}
+
+function addTyping() {
+  const bubble = document.createElement("div");
+  bubble.className = "msg msg--typing";
+  bubble.id = "typingBubble";
+  bubble.innerHTML = "<span></span><span></span><span></span>";
+  messages.appendChild(bubble);
+  messages.scrollTop = messages.scrollHeight;
+}
+function removeTyping() {
+  const b = document.getElementById("typingBubble");
+  if (b) b.remove();
+}
+
+async function sendMessage(text, explicitTopic) {
+  if (!text.trim()) return;
+  addMessage(text, "user");
+  input.value = "";
+  autoGrow();
+  sendBtn.disabled = true;
+  addTyping();
+
+  const language = languageSelect.value;
+  const topic = explicitTopic || detectTopic(text);
+
+  try {
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-6",
+        max_tokens: 600,
+        system: SYSTEM_PROMPT,
+        messages: [{ role: "user", content: `Respond in ${language}.\n\nUser question: ${text}` }]
+      })
+    });
+    const data = await response.json();
+    removeTyping();
+
+    const reply = (data.content || [])
+      .filter(b => b.type === "text")
+      .map(b => b.text)
+      .join("\n")
+      .trim();
+
+    addMessage(reply || "Sorry, I couldn't generate a response just now. Please try again.", "bot");
+    logInteraction(topic, language);
+  } catch (err) {
+    removeTyping();
+    addMessage("Sorry, I'm having trouble reaching the health information service right now. Please try again in a moment.", "error");
+  } finally {
+    sendBtn.disabled = false;
+    pendingTopic = null;
+  }
+}
+
+form.addEventListener("submit", (e) => {
+  e.preventDefault();
+  sendMessage(input.value, pendingTopic);
+});
+input.addEventListener("keydown", (e) => {
+  if (e.key === "Enter" && !e.shiftKey) {
+    e.preventDefault();
+    form.requestSubmit();
+  }
+});
+
+// --- Tabs ---
+const chatView = document.getElementById("chatView");
+const dashView = document.getElementById("dashView");
+const chatTabBtn = document.getElementById("chatTabBtn");
+const dashTabBtn = document.getElementById("dashTabBtn");
+
+chatTabBtn.addEventListener("click", () => {
+  chatView.classList.add("is-active"); dashView.classList.remove("is-active");
+  chatTabBtn.classList.add("is-active"); dashTabBtn.classList.remove("is-active");
+});
+dashTabBtn.addEventListener("click", () => {
+  dashView.classList.add("is-active"); chatView.classList.remove("is-active");
+  dashTabBtn.classList.add("is-active"); chatTabBtn.classList.remove("is-active");
+  renderDashboard();
+});
+
+loadStats();
+</script>
+</body>
+</html>
